@@ -1,0 +1,50 @@
+version: '3.8'  
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: microservicios
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/scripts:/docker-entrypoint-initdb.d  # Formato del script para el db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  estudiante:
+    build: ./estudiantes  
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db
+      DB_NAME: microservicios
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./estudiantes:/app  
+
+  evaluacion:
+    build: ./evaluacion  
+    ports:
+      - "5001:5001"
+    environment:
+      DB_HOST: db
+      DB_NAME: microservicios
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - db
+      - estudiante  
+
+volumes:
+  postgres_data:  

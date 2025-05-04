@@ -1,0 +1,3 @@
+flask==2.0.3  # Versión estable compatible
+werkzeug==2.0.3  # Versión específica para evitar conflictos
+psycopg2-binary==2.9.3
